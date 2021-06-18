@@ -40,7 +40,7 @@ def get_sales_data():
 def validate_data(values):
     """
     Inside the try, converts all string values into integers.
-    Raises ValueError if string cannot be converted into int, 
+    Raises ValueError if string cannot be converted into int
     or if there are not exactly 6 values
     """
     try:
@@ -49,7 +49,7 @@ def validate_data(values):
             raise ValueError(
                 f"Exactly 6 values required, you provided {len(values)}"
                 )
-    except ValueError as e: 
+    except ValueError as e:
         print(f"Invalid data: {e}, please try again\n")
         return False
 
@@ -77,11 +77,11 @@ def calculate_surplus_data(sales_row):
     """
     print("Calculating surplus data...\n")
     stock = SHEET.worksheet("stock").get_all_values()
-    stock_row = [int(stockz) for stockz in stock[-1]]
+    stock_row = stock[-1]
 
     surplus_data = []
     for stock, sales in zip(stock_row, sales_row):
-        surplus = stock - sales
+        surplus = int(stock) - sales
         surplus_data.append(surplus)
 
     return surplus_data
@@ -89,17 +89,17 @@ def calculate_surplus_data(sales_row):
 
 def get_last_5_entry_sales():
     """
-    Collect columns of data from sales worksheet, collecting 
-    the last 5 entries for each sandwich and returns the data 
+    Collect columns of data from sales worksheet, collecting
+    the last 5 entries for each sandwich and returns the data
     as a list of lists
     """
-    sales = SHEET.worksheet("sales") 
+    sales = SHEET.worksheet("sales")
 
     columns = []
     for ind in range(1, 7):
         column = sales.col_values(ind)
         columns.append(column[-5:])
-    
+
     return columns
 
 
@@ -119,6 +119,16 @@ def calculate_stock_data(data):
     return new_stock_data
 
 
+def get_stock_values(data):
+    """
+    Create a dictionary using the column headings from the spreadsheet as keys and sales data as values
+    """
+    headings = SHEET.worksheet("sales").row_values(1)
+    dictionary = {headings[i]: data[i] for i in range(len(headings))}
+
+    return dictionary
+
+
 def main():
     """
     Run all program functions
@@ -131,6 +141,8 @@ def main():
     sales_columns = get_last_5_entry_sales()
     stock_data = calculate_stock_data(sales_columns)
     update_worksheet(stock_data, "stock")
+    stock_values = get_stock_values(stock_data)
+    print(stock_values)
 
 
 print("Welcome to Love Sandwiches Data Automation")
